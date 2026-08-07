@@ -1,7 +1,8 @@
-import { validatePreset } from './timer-logic.mjs';
+import { validatePreset, formatTime, buildPhaseSequence } from './timer-logic.mjs';
 import {
   getPresets, savePreset, deletePreset, getLastUsedPresetId, setLastUsedPresetId,
 } from './presets.mjs';
+import { playBeep } from './audio.mjs';
 
 const setupScreen = document.getElementById('setup-screen');
 const sessionScreen = document.getElementById('session-screen');
@@ -97,5 +98,114 @@ function init() {
   loadPresetIntoForm(initial);
   showScreen(setupScreen);
 }
+
+const phaseLabelEl = document.getElementById('phase-label');
+const countdownEl = document.getElementById('countdown');
+const roundCounterEl = document.getElementById('round-counter');
+const skipPrepBtn = document.getElementById('skip-prep-btn');
+const pauseBtn = document.getElementById('pause-btn');
+const stopBtn = document.getElementById('stop-btn');
+const doneBackBtn = document.getElementById('done-back-btn');
+
+let sequence = [];
+let phaseIndex = 0;
+let remainingSeconds = 0;
+let intervalId = null;
+let isPaused = false;
+
+function phaseLabelText(phase) {
+  if (phase.type === 'prep') return 'GET READY';
+  if (phase.type === 'round') return 'WORK';
+  if (phase.type === 'rest') return 'REST';
+  return 'DONE';
+}
+
+function enterPhase(phase, { announce = true } = {}) {
+  remainingSeconds = phase.seconds;
+  phaseLabelEl.textContent = phaseLabelText(phase);
+  phaseLabelEl.className = `phase-${phase.type}`;
+  countdownEl.textContent = formatTime(remainingSeconds);
+  skipPrepBtn.classList.toggle('hidden', phase.type !== 'prep');
+
+  if (phase.type === 'round' || phase.type === 'rest') {
+    const totalRounds = sequence.filter((p) => p.type === 'round').length;
+    roundCounterEl.textContent = `Round ${phase.roundNumber} / ${totalRounds}`;
+  }
+
+  if (announce) playBeep();
+
+  if (phase.type === 'done') {
+    stopInterval();
+    showScreen(doneScreen);
+  }
+}
+
+function advancePhase() {
+  phaseIndex += 1;
+  enterPhase(sequence[phaseIndex]);
+}
+
+function tick() {
+  remainingSeconds -= 1;
+  if (remainingSeconds < 0) {
+    advancePhase();
+    return;
+  }
+  countdownEl.textContent = formatTime(remainingSeconds);
+}
+
+function startInterval() {
+  stopInterval();
+  intervalId = setInterval(tick, 1000);
+  isPaused = false;
+  pauseBtn.textContent = 'Pause';
+}
+
+function stopInterval() {
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+}
+
+startBtn.addEventListener('click', () => {
+  const preset = selectedPreset();
+  if (!preset) {
+    errorsEl.textContent = 'Select or create a preset first.';
+    return;
+  }
+  setLastUsedPresetId(preset.id);
+  sequence = buildPhaseSequence(preset);
+  phaseIndex = 0;
+  enterPhase(sequence[0], { announce: false });
+  showScreen(sessionScreen);
+  startInterval();
+});
+
+skipPrepBtn.addEventListener('click', () => {
+  stopInterval();
+  advancePhase();
+  if (intervalId === null && phaseIndex < sequence.length - 1) startInterval();
+});
+
+pauseBtn.addEventListener('click', () => {
+  if (isPaused) {
+    startInterval();
+  } else {
+    stopInterval();
+    isPaused = true;
+    pauseBtn.textContent = 'Resume';
+  }
+});
+
+stopBtn.addEventListener('click', () => {
+  if (!confirm('End this session?')) return;
+  stopInterval();
+  showScreen(setupScreen);
+});
+
+doneBackBtn.addEventListener('click', () => {
+  showScreen(setupScreen);
+});
 
 init();
