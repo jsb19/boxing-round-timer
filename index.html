@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Boxing Round Timer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="setup-screen" class="screen">
+    <h1>Boxing Round Timer</h1>
+
+    <label for="preset-select">Preset</label>
+    <select id="preset-select"></select>
+
+    <form id="preset-form">
+      <label for="preset-name">Name</label>
+      <input id="preset-name" type="text" required>
+
+      <label for="preset-rounds">Rounds</label>
+      <input id="preset-rounds" type="number" min="1" required>
+
+      <label for="preset-work">Work (seconds)</label>
+      <input id="preset-work" type="number" min="1" required>
+
+      <label for="preset-rest">Rest (seconds)</label>
+      <input id="preset-rest" type="number" min="0" required>
+
+      <div id="preset-errors" class="errors" aria-live="polite"></div>
+
+      <button type="submit" id="save-preset-btn">Save Preset</button>
+      <button type="button" id="delete-preset-btn">Delete Preset</button>
+      <button type="button" id="new-preset-btn">New Preset</button>
+    </form>
+
+    <button id="start-btn" class="primary">Start</button>
+  </main>
+
+  <main id="session-screen" class="screen hidden">
+    <div id="phase-label"></div>
+    <div id="countdown"></div>
+    <div id="round-counter"></div>
+    <button id="skip-prep-btn" class="hidden">Skip</button>
+    <button id="pause-btn">Pause</button>
+    <button id="stop-btn">Stop</button>
+  </main>
+
+  <main id="done-screen" class="screen hidden">
+    <h1>Session complete</h1>
+    <button id="done-back-btn" class="primary">Back to Setup</button>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
