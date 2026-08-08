@@ -2,7 +2,7 @@ import { validatePreset, formatTime, buildPhaseSequence } from './timer-logic.mj
 import {
   getPresets, savePreset, deletePreset, getLastUsedPresetId, setLastUsedPresetId,
 } from './presets.mjs';
-import { playBeep } from './audio.mjs';
+import { playBeep, unlockAudio } from './audio.mjs';
 
 const setupScreen = document.getElementById('setup-screen');
 const sessionScreen = document.getElementById('session-screen');
@@ -57,6 +57,7 @@ presetSelect.addEventListener('change', () => {
 
 newBtn.addEventListener('click', () => {
   loadPresetIntoForm(null);
+  presetSelect.value = '';
 });
 
 presetForm.addEventListener('submit', (e) => {
@@ -130,6 +131,8 @@ function enterPhase(phase, { announce = true } = {}) {
   if (phase.type === 'round' || phase.type === 'rest') {
     const totalRounds = sequence.filter((p) => p.type === 'round').length;
     roundCounterEl.textContent = `Round ${phase.roundNumber} / ${totalRounds}`;
+  } else {
+    roundCounterEl.textContent = '';
   }
 
   if (announce) playBeep();
@@ -169,6 +172,7 @@ function stopInterval() {
 }
 
 startBtn.addEventListener('click', () => {
+  unlockAudio();
   const preset = selectedPreset();
   if (!preset) {
     errorsEl.textContent = 'Select or create a preset first.';

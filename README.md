@@ -24,3 +24,10 @@ Pure logic modules have plain Node assert-based tests, no framework:
 node timer-logic.test.mjs
 node presets.test.mjs
 ```
+
+## Deploying
+
+`service-worker.js` uses a cache-first strategy with a hardcoded
+`CACHE_NAME`. Bump `CACHE_NAME` (e.g. `boxing-round-timer-v2`) on every
+deploy that changes any cached file — otherwise installed/home-screen
+instances will keep serving stale cached files indefinitely.

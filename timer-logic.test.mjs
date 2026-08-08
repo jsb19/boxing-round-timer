@@ -7,6 +7,9 @@ assert.equal(formatTime(5), '00:05');
 assert.equal(formatTime(65), '01:05');
 assert.equal(formatTime(600), '10:00');
 
+// prep countdown is an explicit project requirement: 10 seconds, pinned as a literal
+assert.equal(PREP_SECONDS, 10);
+
 // validatePreset
 {
   const { valid, errors } = validatePreset({ name: 'Test', rounds: 12, workSeconds: 180, restSeconds: 60 });

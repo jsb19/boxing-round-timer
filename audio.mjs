@@ -8,6 +8,11 @@ function getContext() {
   return audioCtx;
 }
 
+export function unlockAudio() {
+  const ctx = getContext();
+  if (ctx.state === 'suspended') ctx.resume();
+}
+
 export function playBeep() {
   const ctx = getContext();
   if (ctx.state === 'suspended') ctx.resume();
