@@ -1,4 +1,4 @@
-const CACHE_NAME = 'boxing-round-timer-v1';
+const CACHE_NAME = 'boxing-round-timer-v2';
 const APP_SHELL = [
   './',
   './index.html',
