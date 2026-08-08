@@ -11,6 +11,17 @@ function getContext() {
 export function unlockAudio() {
   const ctx = getContext();
   if (ctx.state === 'suspended') ctx.resume();
+
+  // iOS Safari sometimes leaves the context effectively silent for later
+  // scheduled sounds unless a node is actually started/stopped inside the
+  // gesture, not just resumed.
+  const silentOscillator = ctx.createOscillator();
+  const silentGain = ctx.createGain();
+  silentGain.gain.value = 0;
+  silentOscillator.connect(silentGain);
+  silentGain.connect(ctx.destination);
+  silentOscillator.start();
+  silentOscillator.stop(ctx.currentTime + 0.01);
 }
 
 export function playBeep() {
